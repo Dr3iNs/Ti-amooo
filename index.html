@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ti Amo ❤️</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffe6f2;
+      font-family: 'Great Vibes', cursive;
+      overflow: hidden;
+      position: relative;
+      height: 100vh;
+    }
+
+    /* Scritta principale centrata */
+    #main-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 60px;
+      color: #b3003b;
+      z-index: 10;
+      text-align: center;
+      text-shadow: 3px 3px 10px rgba(255, 0, 100, 0.5);
+      max-width: 90%;
+    }
+
+    /* Cuori in caduta (sfondo) con l'emoji cuore */
+    .heart {
+      position: absolute;
+      font-size: 40px;
+      color: red;
+      animation: fall 7s linear infinite, wave 3s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-50px); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    @keyframes wave {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(30px); }
+    }
+
+    /* Frasi di contorno animate (non sovrapposte alla scritta principale) */
+    .floating-text {
+      position: absolute;
+      font-size: 24px;
+      color: #ff3366;
+      z-index: 15;
+      opacity: 0;
+      animation: floatIn 4s ease-in-out forwards;
+    }
+
+    @keyframes floatIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.2); }
+    }
+
+    /* Effetto esplosione di cuori attorno alla frase */
+    .heart-explosion {
+      position: absolute;
+      font-size: 20px;
+      color: red;
+      animation: burst 1s ease-out forwards;
+      z-index: 20;
+    }
+
+    @keyframes burst {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Scritta principale -->
+  <h1 id="main-text">❤️ Ti amo Tantissimo! ❤️<br>Grazie di questi 6 mesi insieme, non vedo l'ora di stare con te per cosi tanto tempo che 6 mesi sembreranno pochissimo❤️</h1>
+
+  <script>
+    // Funzione per la pioggia di cuori sullo sfondo
+    function createFallingHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = "❤️"; // Emoji cuore rosso
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.animationDuration = (Math.random() * 3 + 4) + "s";
+      document.body.appendChild(heart);
+      setTimeout(() => { heart.remove(); }, 7000);
+    }
+    setInterval(createFallingHeart, 200);
+
+    // Funzione per verificare se un rettangolo si sovrappone al rettangolo principale
+    function isOverlapping(x, y, width, height, rect) {
+      return !(x + width < rect.left || x > rect.right || y + height < rect.top || y > rect.bottom);
+    }
+
+    // Crea una frase di contorno in una posizione casuale che non intersechi la scritta principale
+    function createFloatingText() {
+      const phrases = [
+        "Ti amo ❤️", "Sei fantastica 😍", "Sei stupenda 💖",
+        "Ti amo tanto ❤️", "Ogni giorno ti amo di più ❤️", "Il mio cuore è tuo 💘"
+      ];
+      const text = document.createElement("div");
+      text.className = "floating-text";
+      text.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+
+      // Temporaneamente rendi il testo invisibile per misurarlo
+      text.style.visibility = "hidden";
+      document.body.appendChild(text);
+      const textRect = text.getBoundingClientRect();
+      text.style.visibility = "visible";
+
+      // Recupera il rettangolo della scritta principale
+      const mainRect = document.getElementById("main-text").getBoundingClientRect();
+
+      let posX, posY, attempts = 0;
+      do {
+        posX = Math.random() * (window.innerWidth - textRect.width);
+        posY = Math.random() * (window.innerHeight - textRect.height);
+        attempts++;
+        if (attempts > 50) break;
+      } while (isOverlapping(posX, posY, textRect.width, textRect.height, mainRect));
+
+      text.style.left = posX + "px";
+      text.style.top = posY + "px";
+
+      // Aggiunge la frase al DOM e attiva l'animazione esplosiva
+      document.body.appendChild(text);
+      triggerExplosion(text);
+      // Rimuove la frase dopo la durata dell'animazione
+      setTimeout(() => { text.remove(); }, 4000);
+    }
+    setInterval(createFloatingText, 3000);
+
+    // Funzione per creare un'esplosione di cuori attorno ad un elemento
+    function triggerExplosion(element) {
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const explosionCount = 10; // numero di cuori per esplosione
+      for (let i = 0; i < explosionCount; i++) {
+        const explosion = document.createElement("div");
+        explosion.className = "heart-explosion";
+        // Calcola un offset casuale attorno al centro dell'elemento
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * 50 + 10;
+        const offsetX = Math.cos(angle) * distance;
+        const offsetY = Math.sin(angle) * distance;
+        explosion.style.left = (centerX + offsetX - 10) + "px"; // -10 per centrare
+        explosion.style.top = (centerY + offsetY - 10) + "px";
+        explosion.textContent = "❤️"; // Cuore rosso per l'esplosione
+        document.body.appendChild(explosion);
+        setTimeout(() => { explosion.remove(); }, 1000);
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
